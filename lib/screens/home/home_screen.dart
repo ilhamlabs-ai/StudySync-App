@@ -411,20 +411,12 @@ class _HomeScreenState extends State<HomeScreen> {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              final sessionProvider = context.read<SessionProvider>();
-              void waitForSession() {
-                if (!context.mounted) return;
-                if (sessionProvider.isInSession) {
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (context.mounted) {
-                      context.go('/session');
-                    }
-                  });
-                } else {
-                  Future.delayed(const Duration(milliseconds: 100), waitForSession);
+              // Wait to ensure dialog is dismissed before navigating
+              Future.delayed(const Duration(milliseconds: 300), () {
+                if (context.mounted) {
+                  context.go('/session');
                 }
-              }
-              Future.delayed(const Duration(milliseconds: 100), waitForSession);
+              });
             },
             child: const Text('Enter Session'),
           ),
@@ -432,6 +424,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+
+
 
   void _showJoinSessionDialog() {
     final codeController = TextEditingController();
@@ -481,7 +475,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(context, rootNavigator: true).pop(),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
@@ -501,7 +495,7 @@ class _HomeScreenState extends State<HomeScreen> {
       return;
     }
 
-    Navigator.of(context).pop(); // Close dialog
+    Navigator.of(context, rootNavigator: true).pop(); // Close dialog
 
     // Show loading
     showDialog(
@@ -532,21 +526,13 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.of(context, rootNavigator: true).pop(); // Close loading
 
           if (success) {
-            print('Successfully joined, waiting for session to be ready');
-            void waitForSession() {
-              if (!context.mounted) return;
-              final sessionProvider = context.read<SessionProvider>();
-              if (sessionProvider.isInSession) {
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (context.mounted) {
-                    context.go('/session');
-                  }
-                });
-              } else {
-                Future.delayed(const Duration(milliseconds: 100), waitForSession);
+            print('Successfully joined, navigating to session');
+            // Wait longer to ensure all dialogs are dismissed
+            Future.delayed(const Duration(milliseconds: 300), () {
+              if (context.mounted) {
+                context.go('/session');
               }
-            }
-            Future.delayed(const Duration(milliseconds: 100), waitForSession);
+            });
           } else {
             print('Failed to join session');
             ScaffoldMessenger.of(context).showSnackBar(

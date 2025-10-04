@@ -396,7 +396,7 @@ class _EnhancedSessionScreenState extends State<EnhancedSessionScreen> {
           ),
           const SizedBox(height: 12),
           SizedBox(
-            height: 60,
+            height: 65,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: sessionProvider.participants.length,

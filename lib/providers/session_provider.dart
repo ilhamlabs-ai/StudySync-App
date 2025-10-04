@@ -131,9 +131,14 @@ class SessionProvider extends ChangeNotifier {
       _currentSessionCode = sessionCode.toUpperCase();
       _isHost = false;
 
-      final sessionData = Map<String, dynamic>.from(snapshot.value as Map);
+      final rawSessionData = snapshot.value as Map<Object?, Object?>;
+      final sessionData = Map<String, dynamic>.from(rawSessionData.map((key, value) => MapEntry(key.toString(), value)));
       print('[SessionProvider] Session data after join: $sessionData');
-      final timerData = sessionData['timer'] as Map<String, dynamic>?;
+      final timerData = sessionData['timer'] != null
+        ? Map<String, dynamic>.from(
+            (sessionData['timer'] as Map<Object?, Object?>).map((key, value) => MapEntry(key.toString(), value))
+          )
+        : null;
       _timerSeconds = timerData?['seconds'] ?? 1500;
       _timerRunning = timerData?['running'] ?? false;
       _timerMode = timerData?['mode'] ?? 'focus';
