@@ -532,12 +532,21 @@ class _HomeScreenState extends State<HomeScreen> {
           Navigator.of(context, rootNavigator: true).pop(); // Close loading
 
           if (success) {
-            print('Successfully joined, navigating to session');
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (context.mounted) {
-                context.go('/session');
+            print('Successfully joined, waiting for session to be ready');
+            void waitForSession() {
+              if (!context.mounted) return;
+              final sessionProvider = context.read<SessionProvider>();
+              if (sessionProvider.isInSession) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (context.mounted) {
+                    context.go('/session');
+                  }
+                });
+              } else {
+                Future.delayed(const Duration(milliseconds: 100), waitForSession);
               }
-            });
+            }
+            Future.delayed(const Duration(milliseconds: 100), waitForSession);
           } else {
             print('Failed to join session');
             ScaffoldMessenger.of(context).showSnackBar(
