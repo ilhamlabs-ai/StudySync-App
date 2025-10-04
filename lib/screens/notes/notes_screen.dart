@@ -16,7 +16,6 @@ class _NotesScreenState extends State<NotesScreen> {
   Widget build(BuildContext context) {
     final authProvider = context.watch<AuthProvider>();
     final notesProvider = context.watch<NotesProvider>();
-    
     return Scaffold(
       backgroundColor: AppTheme.backgroundDark,
       appBar: AppBar(
@@ -28,179 +27,225 @@ class _NotesScreenState extends State<NotesScreen> {
           IconButton(
             icon: const Icon(Icons.refresh, color: Colors.white),
             onPressed: () {
-              setState(() {}); // Refresh the FutureBuilder
+              setState(() {});
             },
           ),
         ],
       ),
-      body: authProvider.user == null 
-        ? const Center(
-            child: Text(
-              'Please sign in to view your notes',
-              style: TextStyle(color: Colors.white70, fontSize: 16),
-            ),
-          )
-        : FutureBuilder<List<Map<String, dynamic>>>(
-            future: notesProvider.fetchNotes(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(
-                  child: CircularProgressIndicator(
-                    color: AppTheme.accent,
-                  ),
-                );
-              }
-              if (snapshot.hasError) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.error, color: Colors.red, size: 48),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Error loading notes: ${snapshot.error}',
-                        style: const TextStyle(color: Colors.white70),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () => setState(() {}),
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.note_add,
-                        size: 64,
-                        color: AppTheme.accent.withOpacity(0.5),
-                      ),
-                      const SizedBox(height: 16),
-                      const Text(
-                        'No notes yet',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'Tap the + button to create your first note',
-                        style: TextStyle(color: Colors.white54),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              final notes = snapshot.data!;
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: notes.length,
-                itemBuilder: (context, index) {
-                  final note = notes[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: AppTheme.panelDark,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppTheme.accent.withOpacity(0.2),
-                      ),
-                    ),
-                    child: ListTile(
-                      contentPadding: const EdgeInsets.all(16),
-                      title: Text(
-                        note['content'] ?? '',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                        ),
-                      ),
-                      subtitle: note['timestamp'] != null
-                        ? Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              _formatTimestamp(note['timestamp']),
-                              style: TextStyle(
-                                color: Colors.grey[400],
-                                fontSize: 12,
-                              ),
-                            ),
-                          )
-                        : null,
-                      trailing: IconButton(
-                        icon: Icon(Icons.delete, color: Colors.grey[400]),
-                        onPressed: () async {
-                          // TODO: Implement delete note functionality
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Delete functionality coming soon'),
-                            ),
-                          );
-                        },
-                      ),
+      body: authProvider.user == null
+          ? const Center(
+              child: Text(
+                'Please sign in to view your notes',
+                style: TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+            )
+          : FutureBuilder<List<Map<String, dynamic>>>(
+              future: notesProvider.fetchNotes(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: CircularProgressIndicator(
+                      color: AppTheme.accent,
                     ),
                   );
-                },
-              );
-            },
-          ),
+                }
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error, color: Colors.red, size: 48),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Error loading notes: ${snapshot.error}',
+                          style: const TextStyle(color: Colors.white70),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: () => setState(() {}),
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.note_add,
+                          size: 64,
+                          color: AppTheme.accent.withOpacity(0.5),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'No notes yet',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'Tap the + button to create your first note',
+                          style: TextStyle(color: Colors.white54),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                final notes = snapshot.data!;
+                return ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: notes.length,
+                  itemBuilder: (context, index) {
+                    final note = notes[index];
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      decoration: BoxDecoration(
+                        color: AppTheme.panelDark,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: AppTheme.accent.withOpacity(0.2),
+                        ),
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.all(16),
+                        title: Text(
+                          (note['title'] ?? '').toString().isNotEmpty
+                              ? note['title']
+                              : (note['content'] ?? ''),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if ((note['title'] ?? '').toString().isNotEmpty && (note['content'] ?? '').toString().isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4),
+                                child: Text(
+                                  note['content'],
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ),
+                            if (note['timestamp'] != null || note['createdAt'] != null)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 8),
+                                child: Text(
+                                  _formatTimestamp(note['timestamp'] ?? note['createdAt']),
+                                  style: TextStyle(
+                                    color: Colors.grey[400],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        trailing: IconButton(
+                          icon: Icon(Icons.delete, color: Colors.grey[400]),
+                          onPressed: () async {
+                            // TODO: Implement delete note functionality
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Delete functionality coming soon'),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: AppTheme.accent,
         foregroundColor: Colors.white,
         onPressed: () async {
+          String? noteTitle;
           String? noteContent;
-          final content = await showDialog<String>(
+          final result = await showDialog<Map<String, String>>(
             context: context,
-            builder: (context) => AlertDialog(
-              backgroundColor: AppTheme.panelDark,
-              title: const Text('Add Note', style: TextStyle(color: Colors.white)),
-              content: TextField(
-                autofocus: true,
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: 'Enter your note here...',
-                  hintStyle: TextStyle(color: Colors.grey[400]),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppTheme.accent.withOpacity(0.3)),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: AppTheme.accent),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+            builder: (context) {
+              return AlertDialog(
+                backgroundColor: AppTheme.panelDark,
+                title: const Text('Add Note', style: TextStyle(color: Colors.white)),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextField(
+                      autofocus: true,
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Title (optional)',
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppTheme.accent.withOpacity(0.3)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppTheme.accent),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      onChanged: (value) => noteTitle = value,
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: 'Content',
+                        hintStyle: TextStyle(color: Colors.grey[400]),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppTheme.accent.withOpacity(0.3)),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: AppTheme.accent),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      maxLines: 3,
+                      onChanged: (value) => noteContent = value,
+                    ),
+                  ],
                 ),
-                maxLines: 3,
-                onChanged: (value) => noteContent = value,
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text('Cancel', style: TextStyle(color: Colors.grey[400])),
-                ),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppTheme.accent,
-                    foregroundColor: Colors.white,
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text('Cancel', style: TextStyle(color: Colors.grey[400])),
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop(noteContent);
-                  },
-                  child: const Text('Add'),
-                ),
-              ],
-            ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppTheme.accent,
+                      foregroundColor: Colors.white,
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).pop({
+                        'title': noteTitle ?? '',
+                        'content': noteContent ?? '',
+                      });
+                    },
+                    child: const Text('Add'),
+                  ),
+                ],
+              );
+            },
           );
-          if (content != null && content.isNotEmpty) {
-            await context.read<NotesProvider>().addNote(content);
-            setState(() {}); // Refresh the notes list
+          if (result != null && (result['content']?.isNotEmpty ?? false)) {
+            await context.read<NotesProvider>().addNote(result['content']!, title: result['title']);
+            setState(() {});
           }
         },
         child: const Icon(Icons.add),

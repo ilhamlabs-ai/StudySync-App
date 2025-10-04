@@ -254,51 +254,92 @@ class _TimerScreenState extends State<TimerScreen> {
   Widget _buildTimerSection() {
     return Consumer2<TimerProvider, SettingsProvider>(
       builder: (context, timerProvider, settingsProvider, _) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Circular Timer
-            CircularTimer(
-              timeLeft: timerProvider.timeLeft,
-              progress: timerProvider.getProgress(settingsProvider),
-              formattedTime: timerProvider.formattedTime,
-            ),
-            const SizedBox(height: AppTheme.spacingXL),
-            
-            // Timer Display
-            Text(
-              timerProvider.formattedTime,
-              style: const TextStyle(
-                fontSize: 72,
-                fontWeight: FontWeight.bold,
-                color: AppTheme.textLight,
-                fontFamily: 'monospace',
-                height: 1.0,
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingM),
-            
-            // Mode Display
-            Text(
-              timerProvider.modeDisplayName,
-              style: const TextStyle(
-                fontSize: 20,
-                color: AppTheme.textMuted,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: AppTheme.spacingS),
-            
-            // Completed Pomodoros
-            if (timerProvider.completedPomodoros > 0)
-              Text(
-                'Completed: ${timerProvider.completedPomodoros} pomodoros',
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: AppTheme.textMuted,
+        return SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Circular Timer with integrated display
+              Container(
+                width: 280,
+                height: 280,
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    // Background Circle
+                    Container(
+                      width: 280,
+                      height: 280,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppTheme.accent.withOpacity(0.2),
+                          width: 8,
+                        ),
+                      ),
+                    ),
+                    
+                    // Progress Circle
+                    SizedBox(
+                      width: 280,
+                      height: 280,
+                      child: CircularProgressIndicator(
+                        value: timerProvider.getProgress(settingsProvider),
+                        strokeWidth: 8,
+                        backgroundColor: Colors.transparent,
+                        valueColor: AlwaysStoppedAnimation<Color>(AppTheme.accent),
+                      ),
+                    ),
+                    
+                    // Timer Text
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          timerProvider.formattedTime,
+                          style: const TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.w300,
+                            color: AppTheme.textLight,
+                            fontFamily: 'monospace',
+                            height: 1.1,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          timerProvider.modeDisplayName,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppTheme.accent,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-          ],
+              
+              const SizedBox(height: AppTheme.spacingL),
+              
+              // Completed Pomodoros
+              if (timerProvider.completedPomodoros > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppTheme.accent.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    'Completed: ${timerProvider.completedPomodoros} pomodoros',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppTheme.accent,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+            ],
+          ),
         );
       },
     );
@@ -311,30 +352,111 @@ class _TimerScreenState extends State<TimerScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             // Start/Pause Button
-            CustomButton(
-              text: timerProvider.isRunning ? 'Pause' : 'Start',
-              icon: timerProvider.isRunning ? Icon(Icons.pause) : Icon(Icons.play_arrow),
-              onPressed: () {
-                if (timerProvider.isRunning) {
-                  timerProvider.pauseTimer();
-                } else {
-                  timerProvider.startTimer(settingsProvider);
-                }
-              },
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (timerProvider.isRunning) {
+                      timerProvider.pauseTimer();
+                    } else {
+                      timerProvider.startTimer(settingsProvider);
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.accent,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        timerProvider.isRunning ? Icons.pause : Icons.play_arrow,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        timerProvider.isRunning ? 'Pause' : 'Start',
+                        style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
             
             // Reset Button
-            CustomButton(
-              text: 'Reset',
-              icon: Icon(Icons.refresh),
-              onPressed: () => timerProvider.resetTimer(),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: ElevatedButton(
+                  onPressed: () => timerProvider.resetTimer(settingsProvider),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.accent,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.refresh,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 4),
+                      const Text(
+                        'Reset',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
             
             // Focus Mode Button
-            CustomButton(
-              text: 'Focus',
-              icon: Icon(Icons.fullscreen),
-              onPressed: () => _enterFocusMode(),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: ElevatedButton(
+                  onPressed: () => _enterFocusMode(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.accent,
+                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.fullscreen,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(width: 4),
+                      const Text(
+                        'Focus',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ],
         );
@@ -445,7 +567,7 @@ class FocusModeDialog extends StatelessWidget {
                               CustomButton(
                                 text: 'Reset',
                                 icon: Icon(Icons.refresh),
-                                onPressed: () => timerProvider.resetTimer(),
+                                onPressed: () => timerProvider.resetTimer(settingsProvider),
                               ),
                             ],
                           ),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/timer_provider.dart';
 import '../../providers/settings_provider.dart';
+import '../../providers/session_provider.dart';
 import '../../utils/theme.dart';
 import '../../widgets/custom_button.dart';
 
@@ -88,6 +89,8 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 _buildWelcomeSection(),
                 const SizedBox(height: AppTheme.spacingXL),
+                _buildSessionSection(),
+                const SizedBox(height: AppTheme.spacingXL),
                 _buildQuickActions(),
                 const SizedBox(height: AppTheme.spacingXL),
                 _buildCurrentTimer(),
@@ -138,6 +141,428 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       },
     );
+  }
+
+  Widget _buildSessionSection() {
+    return Consumer<SessionProvider>(
+      builder: (context, sessionProvider, _) {
+        if (sessionProvider.isInSession) {
+          return Container(
+            padding: const EdgeInsets.all(20),
+            decoration: AppTheme.panelDecoration,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      Icons.group_work,
+                      color: AppTheme.accent,
+                      size: 24,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Current Session',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppTheme.textLight,
+                      ),
+                    ),
+                    const Spacer(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppTheme.accent.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        sessionProvider.currentSessionCode ?? '',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppTheme.accent,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        '${sessionProvider.participantCount} participants',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: AppTheme.textMuted,
+                        ),
+                      ),
+                    ),
+                    if (sessionProvider.isHost)
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: AppTheme.accent,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Text(
+                          'HOST',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () => context.go('/session'),
+                        child: const Text('View Session'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () async {
+                          await sessionProvider.leaveSession();
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Left session')),
+                            );
+                          }
+                        },
+                        child: const Text('Leave'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Session controls when not in a session
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: AppTheme.panelDecoration,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.people,
+                    color: AppTheme.accent,
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Study Sessions',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppTheme.textLight,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              const Text(
+                'Study with friends in real-time with synchronized timers',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: AppTheme.textMuted,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => _showCreateSessionDialog(),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Create Room'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _showJoinSessionDialog(),
+                      icon: const Icon(Icons.login),
+                      label: const Text('Join Room'),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCreateSessionDialog() async {
+    final sessionProvider = context.read<SessionProvider>();
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.panelDark,
+        title: const Text('Creating Session...', style: TextStyle(color: AppTheme.textLight)),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: AppTheme.accent),
+            SizedBox(height: 16),
+            Text('Setting up your study room', style: TextStyle(color: AppTheme.textMuted)),
+          ],
+        ),
+      ),
+    );
+
+    print('Starting session creation...');
+    try {
+      final sessionCode = await sessionProvider.createSession();
+      print('Session creation result: $sessionCode');
+
+      if (context.mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context, rootNavigator: true).pop();
+
+          if (sessionCode != null) {
+            print('Session created successfully, showing code dialog');
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                _showSessionCodeDialog(sessionCode);
+              }
+            });
+          } else {
+            print('Session creation failed - returned null');
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Failed to create session. Please check your internet connection and try again.'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        });
+      }
+    } catch (e) {
+      print('Exception during session creation: $e');
+      if (context.mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context, rootNavigator: true).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error creating session: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        });
+      }
+    }
+  }
+
+  void _showSessionCodeDialog(String sessionCode) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.panelDark,
+        title: const Text('Session Created!', style: TextStyle(color: AppTheme.textLight)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Share this code with your study partners:',
+              style: TextStyle(color: AppTheme.textMuted),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: BoxDecoration(
+                color: AppTheme.accent.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: AppTheme.accent),
+              ),
+              child: Text(
+                sessionCode,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppTheme.accent,
+                  letterSpacing: 2,
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              final sessionProvider = context.read<SessionProvider>();
+              void waitForSession() {
+                if (!context.mounted) return;
+                if (sessionProvider.isInSession) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (context.mounted) {
+                      context.go('/session');
+                    }
+                  });
+                } else {
+                  Future.delayed(const Duration(milliseconds: 100), waitForSession);
+                }
+              }
+              Future.delayed(const Duration(milliseconds: 100), waitForSession);
+            },
+            child: const Text('Enter Session'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showJoinSessionDialog() {
+    final codeController = TextEditingController();
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.panelDark,
+        title: const Text('Join Session', style: TextStyle(color: AppTheme.textLight)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              'Enter the 6-character session code:',
+              style: TextStyle(color: AppTheme.textMuted),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: codeController,
+              textCapitalization: TextCapitalization.characters,
+              maxLength: 6,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+                color: AppTheme.textLight,
+              ),
+              decoration: InputDecoration(
+                hintText: 'ABC123',
+                hintStyle: TextStyle(color: AppTheme.textMuted.withOpacity(0.5)),
+                counterText: '',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppTheme.accent),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: AppTheme.accent.withOpacity(0.5)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: AppTheme.accent),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => _joinSession(codeController.text.trim()),
+            child: const Text('Join'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _joinSession(String code) async {
+    if (code.length != 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Session code must be 6 characters')),
+      );
+      return;
+    }
+
+    Navigator.of(context).pop(); // Close dialog
+
+    // Show loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.panelDark,
+        title: const Text('Joining Session...', style: TextStyle(color: AppTheme.textLight)),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(color: AppTheme.accent),
+            SizedBox(height: 16),
+            Text('Connecting to study room', style: TextStyle(color: AppTheme.textMuted)),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      final sessionProvider = context.read<SessionProvider>();
+      print('Attempting to join session: $code');
+      final success = await sessionProvider.joinSession(code);
+      print('Join session result: $success');
+
+      if (context.mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context, rootNavigator: true).pop(); // Close loading
+
+          if (success) {
+            print('Successfully joined, navigating to session');
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                context.go('/session');
+              }
+            });
+          } else {
+            print('Failed to join session');
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Session not found or invalid code'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        });
+      }
+    } catch (e) {
+      print('Exception joining session: $e');
+      if (context.mounted) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          Navigator.of(context, rootNavigator: true).pop(); // Close loading
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error joining session: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        });
+      }
+    }
   }
 
   Widget _buildQuickActions() {

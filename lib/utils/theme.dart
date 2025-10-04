@@ -50,12 +50,66 @@ class AppTheme {
       background: backgroundDark,
       primary: accent,
       secondary: panelDark,
+      onPrimary: Colors.white,
+      onSecondary: Colors.white,
+      surface: panelDark,
+      onSurface: textLight,
     ),
     useMaterial3: true,
     scaffoldBackgroundColor: backgroundDark,
     textTheme: const TextTheme(
       bodyLarge: TextStyle(color: textLight),
       bodyMedium: TextStyle(color: textMuted),
+      titleLarge: TextStyle(color: textLight),
+      titleMedium: TextStyle(color: textLight),
+      titleSmall: TextStyle(color: textLight),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        foregroundColor: Colors.white,
+        backgroundColor: accent,
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+          color: Colors.white,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        foregroundColor: textLight,
+        side: const BorderSide(color: accent),
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: accent,
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.w600,
+          fontSize: 16,
+        ),
+      ),
+    ),
+    appBarTheme: const AppBarTheme(
+      backgroundColor: backgroundDark,
+      foregroundColor: textLight,
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: TextStyle(
+        color: textLight,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
     ),
   );
 }

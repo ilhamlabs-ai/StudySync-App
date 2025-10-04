@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'timer_mode.dart';
 import 'settings_provider.dart';
@@ -64,35 +65,73 @@ class TimerProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void pauseTimer() {
-    _isRunning = false;
-    notifyListeners();
-  }
-
   void startTimer(SettingsProvider settingsProvider) {
-    initializeTimer(settingsProvider);
+    if (_remainingSeconds <= 0) {
+      initializeTimer(settingsProvider);
+    }
     _isRunning = true;
+    _startCountdown();
     notifyListeners();
   }
+  
   // Timer logic and state
   int _remainingSeconds = 0;
   bool _isRunning = false;
+  Timer? _timer;
 
   int get remainingSeconds => _remainingSeconds;
   bool get isRunning => _isRunning;
 
-  // Removed duplicate startTimer(int seconds)
+  void _startCountdown() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_remainingSeconds > 0 && _isRunning) {
+        _remainingSeconds--;
+        notifyListeners();
+      } else if (_remainingSeconds <= 0) {
+        _completeTimer();
+      }
+    });
+  }
+
+  void _completeTimer() {
+    _isRunning = false;
+    _timer?.cancel();
+    _completedPomodoros++;
+    
+    // Auto-switch mode after completion
+    if (_mode == TimerMode.focus) {
+      _mode = _completedPomodoros % 4 == 0 ? TimerMode.longBreak : TimerMode.shortBreak;
+    } else {
+      _mode = TimerMode.focus;
+    }
+    
+    notifyListeners();
+  }
+
+  void pauseTimer() {
+    _isRunning = false;
+    _timer?.cancel();
+    notifyListeners();
+  }
 
   void stopTimer() {
     _isRunning = false;
+    _timer?.cancel();
     notifyListeners();
-    // Add stop logic here
   }
 
-  void resetTimer() {
-    _remainingSeconds = 0;
+  void resetTimer(SettingsProvider settingsProvider) {
     _isRunning = false;
+    _timer?.cancel();
+    initializeTimer(settingsProvider);
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
   }
 
   // Add more timer logic as needed

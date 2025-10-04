@@ -9,7 +9,7 @@ import 'screens/home/home_screen.dart';
 import 'screens/settings/settings_screen.dart';
 import 'screens/timer/timer_screen.dart';
 import 'screens/notes/notes_screen.dart';
-import 'screens/session/session_screen.dart';
+import 'screens/session/session_screen_enhanced.dart';
 import 'providers/settings_provider.dart';
 import 'providers/timer_provider.dart';
 import 'providers/session_provider.dart';
@@ -84,7 +84,7 @@ final GoRouter _router = GoRouter(
         ),
         GoRoute(
           path: '/session',
-          builder: (context, state) => const SessionScreen(),
+          builder: (context, state) => const EnhancedSessionScreen(),
         ),
         GoRoute(
           path: '/settings',
