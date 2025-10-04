@@ -1,0 +1,199 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# =============================================================================
+# SENSITIVE FILES - NEVER COMMIT THESE
+# =============================================================================
+
+# Firebase Configuration Files (SENSITIVE)
+/android/app/google-services.json
+/ios/Runner/GoogleService-Info.plist
+/macos/Runner/GoogleService-Info.plist
+/web/firebase-config.js
+firebase-config.js
+firebase-config.json
+
+# Firebase Options (Generated - should be regenerated)
+lib/firebase_options.dart
+
+# API Keys and Secrets
+.env
+.env.local
+.env.production
+.env.development
+*.pem
+*.p12
+*.keystore
+*.jks
+
+# Android Signing Keys (VERY SENSITIVE)
+/android/key.properties
+/android/app/key.properties
+/android/**/*.keystore
+/android/**/*.jks
+key.properties
+upload-keystore.jks
+android-release-key.jks
+
+# iOS Certificates and Provisioning Profiles (SENSITIVE)
+/ios/Runner.xcodeproj/project.pbxproj.orig
+/ios/**/*.mobileprovision
+/ios/**/*.p12
+/ios/**/*.cer
+/ios/**/*.certSigningRequest
+/ios/Pods/
+/ios/.symlinks/
+/ios/Flutter/flutter_export_environment.sh
+
+# macOS Certificates
+/macos/Pods/
+/macos/.symlinks/
+/macos/Flutter/flutter_export_environment.sh
+
+# Database and Backend Configuration
+database.json
+service-account-key.json
+service-account.json
+**/service-account*.json
+
+# Local Development Files
+local.properties
+/android/local.properties
+.flutter-plugins
+.packages
+
+# Gradle Wrapper JAR (can be regenerated)
+/android/gradle/wrapper/gradle-wrapper.jar
+
+# Build and Cache Directories
+.gradle/
+gradle/
+!gradle/wrapper/gradle-wrapper.properties
+/android/.gradle/
+/android/app/build/
+/android/build/
+/android/gradle/
+/android/gradlew
+/android/gradlew.bat
+
+# IDE Specific Files
+.vscode/launch.json
+.vscode/settings.json
+*.code-workspace
+
+# OS Generated Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Temporary Files
+*.tmp
+*.temp
+*.cache
+*.bak
+*.backup
+*~
+
+# Log Files
+*.log
+logs/
+crash-logs/
+flutter_*.log
+/android/app/hs_err_*.log
+/android/replay_pid*.log
+
+# Testing and Coverage
+.coverage
+/test/coverage/
+coverage/
+lcov.info
+
+# Web Build (if contains sensitive config)
+/web/build/
+web/build/
+
+# Platform Specific Build Outputs
+/linux/build/
+/windows/build/
+/macos/build/
+
+# Dart/Flutter Generated Files
+*.g.dart
+*.freezed.dart
+*.mocks.dart
+.metadata
+
+# Package and Dependency Locks (optional - you may want to keep pubspec.lock)
+# pubspec.lock
+
+# =============================================================================
+# PROJECT SPECIFIC SENSITIVE FILES
+# =============================================================================
+
+# StudySync Specific Sensitive Files
+lib/config/api_keys.dart
+lib/config/secrets.dart
+assets/config/
+config.json
+app-config.json
+
+# Any files with "secret", "key", or "token" in the name
+*secret*
+*secrets*
+*key*
+*keys*
+*token*
+*tokens*
+*private*
+*credential*
+*credentials*
+
+# Backup files that might contain sensitive data
+*.sql
+*.db
+*.sqlite
+*.sqlite3

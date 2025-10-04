@@ -1,0 +1,54 @@
+name: studysync_flutter
+description: StudySync - Collaborative Study App
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.1.0 <4.0.0'
+  flutter: ">=3.13.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Firebase
+  firebase_core: ^4.1.1
+  firebase_auth: ^6.1.0
+  cloud_firestore: ^6.0.2
+  firebase_database: ^12.0.2
+  
+  # Google Sign In
+  google_sign_in: ^7.2.0
+  
+  # State Management & Navigation
+  provider: ^6.1.1
+  go_router: ^16.2.4
+  
+  # UI & Icons
+  cupertino_icons: ^1.0.2
+  google_fonts: ^6.1.0
+  flutter_svg: ^2.0.9
+  
+  # Utilities
+  shared_preferences: ^2.2.2
+  permission_handler: ^12.0.1
+  flutter_local_notifications: ^19.4.2
+  audioplayers: ^6.5.1
+  
+  # Timer & Animation
+  circular_countdown_timer: ^0.2.3
+  animator: ^3.2.4
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - assets/sounds/
+    - assets/images/
+  

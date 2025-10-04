@@ -1,0 +1,76 @@
+# Android-specific Gradle files
+gradle-wrapper.jar
+/.gradle
+/captures/
+/gradlew
+/gradlew.bat
+/local.properties
+GeneratedPluginRegistrant.java
+.cxx/
+/build/
+
+# Android keystore and signing files - NEVER commit these
+# See https://flutter.dev/to/reference-keystore
+key.properties
+**/*.keystore
+**/*.jks
+*.p12
+*.p8
+*.mobileprovision
+upload-keystore.jks
+app-release-key.jks
+release-key.jks
+debug.keystore
+
+# Firebase and Google Services - Android specific
+app/google-services.json
+google-services.json
+**/google-services.json
+firebase-adminsdk-*.json
+firebase_app_id_file.json
+
+# OAuth and API credentials
+oauth_client_*.json
+client_secret_*.json
+service-account-*.json
+
+# Android build outputs that may contain sensitive info
+/app/build/
+/app/release/
+/app/debug/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# ProGuard files that might expose structure
+proguard/
+mapping.txt
+seeds.txt
+usage.txt
+
+# Android Studio/IntelliJ specific
+.idea/
+*.iml
+*.ipr
+*.iws
+.idea_modules/
+
+# Local Android SDK/NDK paths
+local.properties
+sdk.dir
+ndk.dir
+
+# Signing reports
+signing-report.txt
+
+# Crash logs
+hs_err_pid*.log
+replay_pid*.log
+
+# Temporary build files
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
